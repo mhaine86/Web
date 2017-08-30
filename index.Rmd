@@ -20,3 +20,6 @@ Phillies | National
 Yankees | American
 Cubs | National
 Red Sox | American
+
+<img src="Wedding.jpg" width="300" />
+
