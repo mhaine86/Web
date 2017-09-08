@@ -20,3 +20,95 @@ Batting%>%
   filter(teamID=='NYA' & yearID==1927)
 ```
 
+If we only wanted to look at Yankee players with more than 40 home runs in a season that code would look like this.
+
+```{r message=False, warning=False}
+Batting%>%
+  select(yearID,playerID,teamID,HR)%>%
+  filter(teamID=='NYA' & HR>=40)
+
+```
+Now the way this works is that dplyr pulls all columns that were requested in the select function, then it filters out all records not meeting the requirements within the filter function. So it would be possible to run the same code reversed like this.
+
+```{r message=False, warning=False}
+Batting%>%
+  filter(teamID=='NYA' & HR>=40)%>%
+  select(yearID,playerID,teamID,HR)
+```
+Now let's saye we wanted to look at all players that struck out less than 10 times in a season with more than 400 at-bats, and we wanted to make sure they were in order from the least amount of strikeouts to the greatest. The code would look like the following.
+
+```{r message=False, warning=False}
+Batting%>%
+  select(playerID,yearID,teamID,SO,AB)%>%
+  filter(SO<10 & AB>400)%>%
+  arrange(SO)
+```
+So we just used the arrange function to order our database. Arrange allows us to order records and its default setting is least to greatest. If you wanted to arrange from greatest to least the code would look like this.
+
+```{r message=False, warning=False}
+Batting%>%
+  select(playerID,yearID,teamID,SO,AB)%>%
+  filter(SO<10 & AB>400)%>%
+  arrange(desc(SO))
+```
+Now let's look at aggregation. All of our previous code has examined selecting single season records so if we wanted to examine a player's career home run totals we would have to use the group_by and summarize functions. To see these functions in action the following code will show the total homeruns hit by Babe Ruth during his career.
+
+```{r message=False, warning=False}
+Batting%>%
+  filter(playerID=='ruthba01')%>%
+  group_by(playerID)%>%
+  summarize(career_HR=sum(HR))
+
+```
+That function is pretty basic, so lets look at all players that have career home run totals greater than 600 and we will order them from greatest to least.
+
+```{r message=False, warning=False}
+Batting%>%
+  group_by(playerID)%>%
+  summarize(career_HR=sum(HR))%>%
+  filter(career_HR>=600)%>%
+  arrange(desc(career_HR))
+```
+
+Now let's talk about averages. If we wanted to see what a players average season total was we could easily do that.
+
+```{r message=False, warning=False}
+Batting%>%
+  group_by(playerID)%>%
+  summarize(HRAVG=mean(HR))%>%
+  filter(HRAVG>30)%>%
+  arrange(desc(HRAVG))
+```
+
+Not too hard, but lets make it more interesting. Let's say now we wanted to see what players, since 1970, have hit more than at least 50 home runs in at least one season. To first do this we would code to search for only those players whose max home runs in any season is greater than fifty, because that would mean they had at least one season with more than fifty home runs. 
+
+```{r message=False, warning=False}
+Batting%>%
+  group_by(playerID)%>%
+  summarize(MAXHR=max(HR))%>%
+  filter(MAXHR>50)
+```
+
+Then we can filter this query to only examine records from 1970 and beyond
+
+```{r message=False, warning=False}
+Batting%>%
+  filter(yearID>=1970)%>%
+  group_by(playerID)%>%
+  summarize(MAXHR=max(HR))%>%
+  filter(MAXHR>50)
+```
+And finally we can take the names out by adding a select statement
+
+```{r message=False, warning=False}
+Batting%>%
+  filter(yearID>=1970)%>%
+  group_by(playerID)%>%
+  summarize(MAXHR=max(HR))%>%
+  filter(MAXHR>50)%>%
+  select(playerID)
+
+```
+
+That concludes a basic tutorial of dplyr happy coding.
+
